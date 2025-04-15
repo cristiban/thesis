@@ -1,0 +1,15 @@
+\chapter{Methods}\label{methods}
+Since its introduction \parencite{aertsenSpectrotemporalReceptiveFields1980a}, the spectro-temporal receptive field (STRF) has been a widely used method for studying auditory neurons. Nevertheless, it has been shown STRF does not manage to capture nonlinearlities in neuronal activity. Therefore, my thesis will attempt to apply a convolutional neural network architecture on calcium imaging data, which will then be linearized to an interpretable DSTRF, as described by \textcite{keshishianEstimatingInterpretingNonlinear2020}. 
+The data used in this project consists of calcium imaging data, where a genetically encoded calcium indicator (GECI) has been expressed in auditory cortex neurons of mice. This indicator has fluorescent properties, and thus intraneuronal calcium dynamics can be recorded using widefield imaging.
+
+As for the experimental setup, we investigated the neural representation of unexpected stimulus omissions in extended sound sequences across multiple spatial scales and cortical depths of the auditory cortex (AC) in mice (CBA/JRj, female, age: 2-3 months, n=10, Fig. 1A). We locally transfected these normal-hearing mice with the fast and bright Ca2+-indicator jGCaMP8m (Fig. 1B) and chronically imaged the whole auditory cortex (1p widefield, 100 Hz) and multiple fields of view (FOVs, 500x500µm) at cellular resolution across different depths (2p resonant scanning, 30 Hz). Imaging was performed through a cranial window (ø=3.0-4.2 mm) centered above the AC starting after 2-3 weeks of viral expression.
+
+The raw data collected from the animals was preprocessed using the Controller software developed within the lab. The standard preprocessig methods have been used: motion correction, deconvolution and denoising of the calcium imaging. The resulting frames were further used as input to the convolutional neural network.
+
+The dynamic random chord (DRC) stimulus has been used during imaging, in order to elicit a response in the auditory cortex. The stimulus consists of a sequence of chords. In this context, a chord is a combinations of tone pulses played simultaneously.
+
+Additionally, I would like to preprocess the network input by using a model of early auditory processing, in order to estimate the input to the cortical auditory neurons as well as possible. A model by \textcite{yangAuditoryRepresentationsAcoustic1992} plays this role in the original paper. Due to time constraints, an already available model was used, as opposed to designing one from scratch.
+
+Moreover, the analysis will be conducted using the DSTRF python implementation provided by the authors of the original paper (\url{https://github.com/naplab/DSTRF}). The described CNN network will be trained to predict the activity of each pixel, when given the audio spectrogram of the auditory stimulus as input. Then, as detailed in the original paper, this network will be linearized in order to extract the interpretable DSTRF.
+
+Finally, the resulting stimulus-dependent neuronal activity will be visualized as a tonotopic map of the auditory cortex.
