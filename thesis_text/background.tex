@@ -1,4 +1,65 @@
 \chapter{Background (optional)}\label{background}
-The tonotopic organization of the auditory is well established in the literature, both in humans \parencite{saenzTonotopicMappingHuman2014}, and in other mammals \parencite{realeTonotopicOrganizationAuditory1980,bizleyFunctionalOrganizationFerret2005}. Linear methods such as STRF have been successfully used to estimate neuronal tuning in the form of frequency-time lag response kernels, based on the representation of acoustic signals. \parencite{aertsenSpectrotemporalReceptiveFields1980a}. Nevertheless, these linear methods fail to fully capture the intricacies of neuronal activity and lack robustness relative to the stimulus used \parencite{ahrensNonlinearitiesContextualInfluences2008}. Consequently, multiple nonlinear models have been proposed in order to improve accuracy \parencite{meyerModelsNeuronalStimulusResponse2017}. A more recently introduced such model is DSTRF, which is obtained by linearizing a deep neural network \parencite{keshishianEstimatingInterpretingNonlinear2020}. This method has been shown to be more accurate in fitting to nonlinear data, with the differences being more striking for increasingly nonlinear data. Moreover, the interpretability of this method allows for intuitive visualization of the tuning function, quite similar to STRF \parencite{keshishianEstimatingInterpretingNonlinear2020}.
 
-In this paper, I will be applying this novel method to calcium imaging data, in the hope that new insights will emerge from the analysis.
+Generally speaking, estimation of the function that outputs the neural response corresponding to an auditory stimulus has been heavily studied, give its theoretical and practical importance regarding computational modeling of the brain. A fundamental goal of systems neuroscience is to understand and model the stimulus-response processing that takes place as electrical signals are transmitted through the brain. As opposed to emotion or the sense of self, the study of the perceptual system (visual/auditory/tactile etc.) has the distinct advantage that the input is easily observable and controllable, allowing for systematic exposure to very specific stimuli. 
+
+\section{Models and estimation methods}
+
+Therefore, various stimuli and mathematical methods have been devised in order to optimally estimate the stimulus-response function of a neuron. \textcite{meyerModelsNeuronalStimulusResponse2017} gives an overview of these model, each with the corresponding statistical estimation method. I will be explaining selected models below, in order to put the research into context and aid understanding of the evolution of these techniques.
+
+\subsection{Gaussian linear model}
+
+The Gaussian linear model assumes that the response is a linear combination of the stimulus, therefore that:
+
+\begin{equation} \label{LM}
+r(t) = \mnot{k^{T}}\mnot{s}(t) = \sum_{i=1}^D k_i s_i(t) = k_1 s_1(t) + k_2 s_2(t) + k_3 s_3(t) + \ldots + k_D s_D(t)
+\end{equation}
+, where $\mnot{s}(t)$ represents the stimulus matrix, containing $D$ vectors of length $s_length$, one for each time unit, and $\mnot{k}$ contains $D \times s_{length}$ weights. Therefore, in the case of a spectrogram input, each instance is the $discrete time \times frequency_bin$ space has a corresponding weight in the weight matrix (filter) $\mnot{k}$.
+
+In the Gaussian linear model, normally distributed noise $\epsilon(t) \sim \mathcal{N}(0, \sum^2)$ is added to \eqref{LM}, in order to model response variability \parencite{meyerModelsNeuronalStimulusResponse2017}.
+
+\subsection{Linear-Nonlinear (LN) cascades}
+
+Compared to the Gaussian linear model, the cascade models transform the response $\mnot{k^T}\mnot{s}(t)$ using a memoryless function $f$:
+
+\begin{equation}
+	\hat{r} = f(\mnot{k^T}\mnot{s}(t))
+\end{equation}
+
+Function $f$ is memoryless, therefore:
+
+\begin{equation}
+	f
+\end{equation}
+
+\subsection{Spectrotemporal receptive fields (STRFs)}
+
+As described in \textcite{aertsenSpectrotemporalReceptiveFields1980}, the spectrotemporal receptive field (STRF) is widely used to characterize the response of primary auditory cortex neurons \parencite{ahrensNonlinearitiesContextualInfluences2008}. the STRF is mathematically represented by the impulse response function $h$ in the equation below:
+
+\begin{equation}
+	\hat{r}(t) = \iint h(\tau, x)\, s(t - \tau, x)\, d\tau\, dx + r_0
+\end{equation}
+\noindent , where $r_0$ represents the mean neural response, and $s(t, x)$ is the two-dimensional stimulus, where $t$ represents the time of the stimulus, and $x$ the frequency.
+
+The presentation of an acoustic stimulus elicits a neural response from the auditory neurons, including zero or more action potentials. An action potential is a rapid change in voltage of the cell membrane, travelling across the axon. These action potentials can be mathematically approximated by the Dirac delta function $\delta(t)$, defined as:
+
+\begin{equation}
+	\delta(t) = 1 \textrm{ if } t=0, 0 \textrm{ elsewhere} 
+\end{equation}
+
+Physiologically speaking, the $\delta(t)$ would correspond to an infinitely sudden and instantaneous increase in voltage. In reality, it takes a small, but non-zero amount of time for the action potential to reach its full intensity, and a slight overshoot generally occurs immediately after the action potential, where the voltage decreases below the resting value, called depolarization. Nevertheless, the above approximation is sufficient for certain uses and is mathematically convenient to work with. Using the approximation, the sequence of action potentials (spike train) occuring in an individual neuron can be modeled as a \emph{stochastic point process}:
+
+\begin{equation}
+	z(t) = \sum_{n=1}^N \delta(t - t _n) \qquad (0 \leq t \leq T)
+\end{equation}
+\noindent where $t_n$ are moments of occurrence of action potentials, $T$ is the duration of the SE and $N$ is number of action potentials
+
+Give the action potential spike train, the PESE is defined as the stimulus segments starting at lag $\tau$ behind each action potential $t_n, n \in \{1, N\}$:
+
+\begin{equation}
+	\mathrm{PESE} = \{x_n(\tau) = x(t_n - \tau); n = 1, N; \tau \geq 0\}
+\end{equation}
+
+\todo{figure of PESE}
+
+\textcite{aertsenSpectrotemporalReceptiveFields1980} describe the PESE by means of a so-called \emph{AFT-cube}, a three-dimensional plot containing the amplitude, frequency and lag parameters of each PESE sample. Therefore, in this parametric space, each individual PESE segment is represented as a curve along the $\tau$-axis, where both the amplitude $a$ and the frequency $f$ change as the stimulus advances in the time dimension.
+

@@ -1,7 +1,7 @@
 \documentclass[11pt,a4paper]{report}
 
 \usepackage{url}
-\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[all]{xy}
 \usepackage{amsmath}
@@ -41,11 +41,22 @@
 \renewcommand{\headrulewidth}{0pt}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% my packages
+\usepackage{lmodern}
+\usepackage{bm}
+\usepackage{animate}
+\usepackage{tikz}
+\usepackage{multimedia}
+\graphicspath{{./Imgs/}}
 \usepackage[backend=biber, style=apa]{biblatex}
 \addbibresource{bibliography.bib}
+\addbibresource{manual.bib}
 \usepackage{titlesec}
 \titleformat{\chapter}{\normalfont\bfseries}{}{0pt}{\Huge}
 \usepackage{xcolor}
+\definecolor{green}{RGB}{0,127,0}
+\newcommand{\qst}[1]{{\color{blue}{#1}}}
+\newcommand{\nosrc}[1]{{\color{green}{#1}}}
+\newcommand{\mnot}[1]{\bm{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
@@ -54,7 +65,7 @@
 \begin{center}
 \textsc{\LARGE Bachelor thesis}\\ [0.5cm]
 \textsc{ \LARGE Artificial Intelligence}\\[0.5cm]
-\includegraphics[height=2cm]{Imgs/RU_Text_&_Logo.jpg}
+\includegraphics[height=2cm]{RU_Text_&_Logo.jpg}
 
 \vspace{0.4cm}
 \hrule \text{}\\[0.4cm]
@@ -65,8 +76,8 @@
 \begin{minipage}[t]{0.45\textwidth}
 \begin{flushleft} \large
 \textit{Author:}\\
-Name\\
-Student number
+Cristian Ban\\
+s1095851
 \end{flushleft}
 \end{minipage}
 \begin{minipage}[t]{0.45\textwidth}
@@ -104,7 +115,7 @@ dr. A.B. LAST NAME\\
 \input{discussion}
 \input{data_and_source_code}
 
-\printbibliography{bibliography.bib}
+\printbibliography
 
 % Use when you need an appendix
 \appendix
