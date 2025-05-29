@@ -25,7 +25,7 @@ Compared to the Gaussian linear model, the cascade models transform the response
 	\hat{r} = f(\mnot{k^T}\mnot{s}(t))
 \end{equation}
 
-Function $f$ is memoryless, therefore:
+Function $f$ is memoryless, meaning that it acts exclusively in the moment $t$, without using information from the past or from the future.
 
 \begin{equation}
 	f
@@ -33,12 +33,37 @@ Function $f$ is memoryless, therefore:
 
 \subsection{Spectrotemporal receptive fields (STRFs)}
 
-As described in \textcite{aertsenSpectrotemporalReceptiveFields1980}, the spectrotemporal receptive field (STRF) is widely used to characterize the response of primary auditory cortex neurons \parencite{ahrensNonlinearitiesContextualInfluences2008}. the STRF is mathematically represented by the impulse response function $h$ in the equation below:
+\subsubsection{Mathematical representation}
+
+As per \textcite{aertsenSpectroTemporalReceptiveField1981}, a stimulus-invariant system can be exemplified by the linear system, which takes an input $x(t)$ and computes the $y(t)$:
 
 \begin{equation}
+	y(t) = \int \mathrm{d}\tau h(\tau) x(t - \tau)
+\end{equation}
+
+The operation illustrated above is called \emph{convolution}, and the function $h(t)$ which relates the input $x(t)$ to the output $y(t)$ is the \emph{impulse response}. The system is called stimulus-invariant because the same transformation is applied all stimuli, independent of the nature or value.
+
+As described in \textcite{aertsenSpectrotemporalReceptiveFields1980}, the spectrotemporal receptive field (STRF) is widely used to characterize the response of primary auditory cortex neurons \parencite{ahrensNonlinearitiesContextualInfluences2008}. the STRF is mathematically represented by the impulse response function $h$ in the equation below:
+
+\begin{equation}\label{impulse response}
 	\hat{r}(t) = \iint h(\tau, x)\, s(t - \tau, x)\, d\tau\, dx + r_0
 \end{equation}
 \noindent , where $r_0$ represents the mean neural response, and $s(t, x)$ is the two-dimensional stimulus, where $t$ represents the time of the stimulus, and $x$ the frequency.
+
+It should be noted that, given the digital nature of experiments in practice, both the stimulus and the response consists of samples taken at equal intervals (the sampling rate). Therefore, a discrete version of the above equation applies:
+
+\begin{equation}
+\hat{r}[n] = \sum_{\tau=1}^N \sum_{x=1}^M h(\tau, x)\, s(n - \tau, x)\, d\tau\, dx + r_0
+\end{equation}
+, where $\tau$ and $x$ have been discretized into $N$ and $M$ samples, respectively, and $n$ represents the sample index, instead of contrinuous time
+
+It can proven that $\mean{r}$ is the minimum MSE $r_0$ estimator as follows:
+\begin{align*}
+	\dv{\mean{(r - r_0)^2}}{r_0} &= 0 \\
+	-2\mean{r-r_0} &= 0 \\
+	\mean{r} - r_0 &= 0 \\
+	\mean{r} &= r_0
+\end{align*}
 
 The presentation of an acoustic stimulus elicits a neural response from the auditory neurons, including zero or more action potentials. An action potential is a rapid change in voltage of the cell membrane, travelling across the axon. These action potentials can be mathematically approximated by the Dirac delta function $\delta(t)$, defined as:
 
@@ -62,4 +87,18 @@ Give the action potential spike train, the PESE is defined as the stimulus segme
 \todo{figure of PESE}
 
 \textcite{aertsenSpectrotemporalReceptiveFields1980} describe the PESE by means of a so-called \emph{AFT-cube}, a three-dimensional plot containing the amplitude, frequency and lag parameters of each PESE sample. Therefore, in this parametric space, each individual PESE segment is represented as a curve along the $\tau$-axis, where both the amplitude $a$ and the frequency $f$ change as the stimulus advances in the time dimension.
+
+\subsection{STRF estimation methods}
+
+\subsubsection{Ridge regression}
+According to \textcite{theunissenEstimatingSpatiotemporalReceptive2001}, an estimation of the impulse response $h(t, x)$ in equation \eqref{impulse response} can be obtained by minimizing the expectation value of the square difference between $r$ and $\hat{r}$.
+Ridge regression tries to minimize the following objective function $J$:
+\begin{equation}
+	J = \min_w \norm{\mnot{k^T}\mnot{s} - r}_2^2 + \alpha \norm{\mnot{k^T}}_2^2
+\end{equation}
+, where $\norm{}_2$ represents the Euclidean norm and $\alpha \geq 0$ controls the amount of shrinkage
+
+\emph{Shrinkage} is meant to prevent some weights in $k$ from becoming infinitely large or small in order to minimize the objective functions. Therefore, a penalty is applied through the term $\alpha \norm{\mnot{k^T}}_2^2$, which increases as the weights become increasingly extreme. Since $s$, $r$l, and $\alpha$ have known values, the result of the ridge regression process is an optimal filter $k$ which relates the stimulus and the response.
+
+\subsubsection{Reverse correlation}
 

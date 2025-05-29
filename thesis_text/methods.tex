@@ -124,6 +124,9 @@ To explain verbally, taking a $3 \times 3 \times 8$ kernel $k$ as an example, th
 
 Assuming the use of the ReLU activation function and the absence of bias, the linearization procedure described above can be used.
 
+\subsection{Hyperparameter optimization}
+\todo
+
 \subsection{Jackknifing and cross-validation}
 During the training process, \emph{cross-validation} was used. Cross-validation is an established method in the statistical and machine learning community, and it used to estimate prediction error \parencite{batesCrossValidationWhatDoes2024}. Cross-validation consists of splitting $n$ samples  into a training subsample (size $n-1$) and a validation subsample (size $1$) in all $n$ possible ways \parencite{stoneCrossValidatoryChoiceAssessment1974}.  While using a single split amounts to validation, averaging results over multiple splits represents cross-validation \parencite{arlotSurveyCrossvalidationProcedures2010}. The exhaustive leave-one-out cross validation is defined as:
 
