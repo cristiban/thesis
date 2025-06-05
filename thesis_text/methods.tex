@@ -18,7 +18,11 @@ Calcium imaging is an indirect indicator of neural activity, due to the importan
 
 The jGCaMP8m calcium indicator works similarly to other indicators in the GCaMP family, being a single-fluorophore GECI. GCaMPs in general consist of three elements: a circularly permuted enhanced green fluorescent protein (EGFP), the calcium binding protein calmodulin, and the calmodulin-binding peptide M13. The EGFP is flanked on both sides by the other two components. In the presence of calcium, the flueoresence of the indicator increases, giving a visual indication of concentration of calcium and, therefore, of the neural activity \parencite{grienbergerImagingCalciumNeurons2012}.
 
-\todo{GCaMP structure figure}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.3]{gcamp}
+	\caption{\parencite{grienbergerImagingCalciumNeurons2012}}
+\end{figure}
 
 
 
@@ -73,8 +77,10 @@ Moreover, for each path starting from the same input node, it is possible to fur
 
 \end{proof}
 
-\todo{add linearization figure}
-\begin{figure}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.3]{linearization}
+	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
 \end{figure}
 
 The resulting weight matrix $\mnot{w}$ contains one weight for each input (i.e spectrogram bin), which can be visualized as the DSTRF for that particular window of the stimulus.
@@ -98,7 +104,11 @@ A network consisting of nodes implementing the ReLU activation function is a uni
 \subsection{CNN network}
 The architecture we used is the original implementation in \parencite{keshishianEstimatingInterpretingNonlinear2020}. This architecture closely follows the CNN architectural principles, consisting of a feature extraction network and a feature summation layer. The networks takes the $T \times F$ bins of the stimulus spectrogram as as input, and outputs the estimated response $\hat{r_i}$ for all $H \times W$ pixels of the image. During the training process, this response is compared to the real recorded response $r_i$. Then, the loss function is computed and the weights of the network are optimized by backpropagation.
 
-\todo{figure of network}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.4]{CNN_arch}
+	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
+\end{figure}
 
 The feature extraction component of the network is comprised of three consecutive convolutional layers with eight kernel size of $3 \times 3$ each, one layer with four $1 \times 1 1$ kernels, and one layer with one $1 \times 1$ kernel. The first layer produces 8 feature maps of size $168 \times 150$, which are then stacked and provided as input to the next layer. The output of the first three layers is of shape $164 \times 146 \times 8$, which is drastically dimensionally reduced through the following layer to $164 \times 146 \times 4$, since only four kernels are used. Then, the latent representation is reduced further to $164 \times 146 \times 1$.
 
@@ -150,4 +160,4 @@ In the original paper by \textcite{keshishianEstimatingInterpretingNonlinear2020
 \section{Code implementation}
 
 \section{Conclusion}
-Finally, the resulting stimulus-dependent neuronal activity will be visualized as a tonotopic map of the auditory cortex.
+In conclusion, calcium imaging is used to record and collect data from the mouse auditory cortex. The fluorescence of the GCaMP indicator correlates with neuronal activity. The obtained recordings are then used as labels to train a convolutional neural network to predict neuronal activity from the perceived auditory stimulus. The trained network is then linearized in order to obtain the direct weights corresponding to each input node (image pixel). These weights represent the DSTRF of that particular pixel at a specific time point. By concatenating the DSTRFs obtained for different time points, a chronological video can be obtained for each pixel.
