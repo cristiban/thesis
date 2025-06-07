@@ -101,6 +101,12 @@ Referencing the models presented in the Background section, the DSTRF is an esti
 
 A network consisting of nodes implementing the ReLU activation function is a universal approximator, which holds for all multilayer feedforward neural networks in general \parencite{hornikMultilayerFeedforwardNetworks1989}. The architecture used to analyse the data is both multilayer, since it contains multiple layer that are connected such that one layer's output is the next layer's input, and also feedforward, since each connection only connects one layer to the next, without any feedback or recursive connection to itself or the previous layers. Moreover, the ReLU activation functions allows the network to approximate any function through piecewise line segments \parencite{keshishianEstimatingInterpretingNonlinear2020}. Using the linearlization process discussed above, we can obtain a weight vector of the same size as the network input, which can considered a filter $\mnot{k}$. Therefore, the stimulus (input of the network) can be multiplied with this filter to get the response estimation $\hat{r} = \mnot{k^T}\mnot{s}(t)$, acting in a similar fashion to STRF.
 
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.4]{relu}
+	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
+\end{figure}
+
 \subsection{CNN network}
 The architecture we used is the original implementation in \parencite{keshishianEstimatingInterpretingNonlinear2020}. This architecture closely follows the CNN architectural principles, consisting of a feature extraction network and a feature summation layer. The networks takes the $T \times F$ bins of the stimulus spectrogram as as input, and outputs the estimated response $\hat{r_i}$ for all $H \times W$ pixels of the image. During the training process, this response is compared to the real recorded response $r_i$. Then, the loss function is computed and the weights of the network are optimized by backpropagation.
 
