@@ -21,7 +21,7 @@ The jGCaMP8m calcium indicator works similarly to other indicators in the GCaMP 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.3]{gcamp}
-	\caption{\parencite{grienbergerImagingCalciumNeurons2012}}
+	\caption{The fluoresecent protein EGFP is flanked on one side by callcium-binding calmodulin and on the other by the peptide M13, which binds to calmodulin. The binding of calcium ions to the structure causes an increase in green fluorescence. \parencite{grienbergerImagingCalciumNeurons2012}}
 \end{figure}
 
 
@@ -80,7 +80,7 @@ Moreover, for each path starting from the same input node, it is possible to fur
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.3]{linearization}
-	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
+	\caption{After training the network, the nodes that had been turned off by ReLU are removed, and the neurons between the input and the output are multiplied in order to get a direct weight for each input. The weights are then reshaped in a more understandable lag $\times$ frequency format, which is the DSTRF \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
 \end{figure}
 
 The resulting weight matrix $\mnot{w}$ contains one weight for each input (i.e spectrogram bin), which can be visualized as the DSTRF for that particular window of the stimulus.
@@ -99,12 +99,43 @@ Therefore, in order to estimate the input to the cortical auditory neurons as we
 \section{Dynamic STRF}
 Referencing the models presented in the Background section, the DSTRF is an estimation method of the filter $\mnot{k}$. The novelty of DSTRF comes from the fact that it attempts to compute a different filter $\mnot{k_{sample}}$ for each subsequent sample of neural activity. In the case of this paper, given the $n = 220$ frames collected after the onset of the stimulus, 220 different filters ($\mnot{k_1}, \mnot{k_2}, \mnot{k_3}, \dots, \mnot{k_n}$) will be computed and concatenated into a movie across the temporal dimension. 
 
-A network consisting of nodes implementing the ReLU activation function is a universal approximator, which holds for all multilayer feedforward neural networks in general \parencite{hornikMultilayerFeedforwardNetworks1989}. The architecture used to analyse the data is both multilayer, since it contains multiple layer that are connected such that one layer's output is the next layer's input, and also feedforward, since each connection only connects one layer to the next, without any feedback or recursive connection to itself or the previous layers. Moreover, the ReLU activation functions allows the network to approximate any function through piecewise line segments \parencite{keshishianEstimatingInterpretingNonlinear2020}. Using the linearlization process discussed above, we can obtain a weight vector of the same size as the network input, which can considered a filter $\mnot{k}$. Therefore, the stimulus (input of the network) can be multiplied with this filter to get the response estimation $\hat{r} = \mnot{k^T}\mnot{s}(t)$, acting in a similar fashion to STRF.
+A network consisting of nodes implementing the ReLU activation function is a universal approximator of any continuous function $f: [0, 1] \rightarrow \mathbb{R}$, which holds for all multilayer feedforward neural networks in general \parencite{hornikMultilayerFeedforwardNetworks1989, huangReLUNetworksAre2020}. 
+
+\begin{proof}[Explanation]
+Consider an MLP (fully connected) neural network with one layer of nodes $h_1, h_2, h_3, \ldots, h_n$ which implement the ReLU activation function. The input is represented by the vector $\mnot{x}$ and the output is a value $y$. For each node $h_i$:
+
+\begin{align*}
+	h_i = \mathrm{ReLU}(\mnot{w_{h_i}^T}\mnot{x}) \\
+	h_{i_{raw}} = \mnot{w_{h_i}^T}\mnot{x}
+\end{align*}
+
+Since the weights are constant, we can write any input value $x_i$ relative to $x_1$ as $x_i = a_ix_1$. Therefore:
+
+\begin{align*}
+	h_{i_{raw}} &= \mnot{w_{h_i}^T}\mnot{x} = w_{x_1h_i}x_1 + w_{x_2h_i}x_2 + w_{x_3h_i}x_3 + \ldots + w_{x_nh_i}x_n = s_{h_i}x_1 \\
+	h_{j_{raw}} &= \mnot{w_{h_j}^T}\mnot{x} = w_{x_1h_j}x_1 + w_{x_2h_j}x_2 + w_{x_3h_j}x_3 + \ldots + w_{x_nh_j}x_n \\
+	&= (a_1w_{x_1h_j} + a_2w_{x_2h_j} + \ldots + a_nw_{x_nh_j})x_1 = s_{h_j}x_1
+	\intertext{Therefore, we can write $h_{i_{raw}}$ relative to $h_{j_{raw}}$:}
+	h_{i_{raw}} &= \frac{s_{h_i}}{s_{h_j}} h_{j_{raw}} = m_{ij}h_{j_{raw}}
+	\intertext{Since the raw output $y_{raw}$ is defined as:}
+	y_{raw} &= w_{h_1}h_{1_{raw}} +  w_{h_2}h_{2_{raw}} + \ldots +  w_{h_n}h_{n_{raw}} \\
+	&= (m_{11} + m_{21} + \ldots + m_{n1})h_{1_{raw}} = s_yh_{1_{raw}}
+\end{align*}
+
+where $s_y$ is the \emph{slope} of the linear function that maps the first hidden node $h_1$ to the raw value of the output $y$.
+
+Based on the input values $\mnot{x}$, a subset of nodes $H_{off} \in H$ might be "turned off" by the ReLU function due to being negative. In turn, this would modify the slope $s_y' = \sum_{m_{i1} \not\in M_{off}} m_{i1}$, removing the positive or negative contributions of some hidden nodes. Plotted in parameter space, this dependence of the slope on the input values results in a linear piecewise function, as illustrated in Figure \ref{fig:piecewise}.
+\end{proof}
+
+
+
+The architecture used to analyse the data is both multilayer, since it contains multiple layer that are connected such that one layer's output is the next layer's input, and also feedforward, since each connection only connects one layer to the next, without any feedback or recursive connection to itself or the previous layers. Moreover, the ReLU activation functions allows the network to approximate any function through piecewise line segments \parencite{keshishianEstimatingInterpretingNonlinear2020}. Using the linearlization process discussed above, we can obtain a weight vector of the same size as the network input, which can considered a filter $\mnot{k}$. Therefore, the stimulus (input of the network) can be multiplied with this filter to get the response estimation $\hat{r} = \mnot{k^T}\mnot{s}(t)$, acting in a similar fashion to STRF.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.4]{relu}
-	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
+	\caption{Using the ReLU activation function results in a piecewise linear apporximation, as opposed to the identity function, which produces a linear fit. This is because the ReLU turns off some neurons, resulting in the varying slope of the approximation function. This allows for a better approximation of a nonlinear function \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
+	\label{fig:piecewise}
 \end{figure}
 
 \subsection{CNN network}
@@ -113,7 +144,7 @@ The architecture we used is the original implementation in \parencite{keshishian
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.4]{CNN_arch}
-	\caption{\parencite{keshishianEstimatingInterpretingNonlinear2020}}
+	\caption{The CNN architecture contains five convolutional layers. After reshaping the intermediate output, two additional fully connected (FC) layers are used \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
 \end{figure}
 
 The feature extraction component of the network is comprised of three consecutive convolutional layers with eight kernel size of $3 \times 3$ each, one layer with four $1 \times 1 1$ kernels, and one layer with one $1 \times 1$ kernel. The first layer produces 8 feature maps of size $168 \times 150$, which are then stacked and provided as input to the next layer. The output of the first three layers is of shape $164 \times 146 \times 8$, which is drastically dimensionally reduced through the following layer to $164 \times 146 \times 4$, since only four kernels are used. Then, the latent representation is reduced further to $164 \times 146 \times 1$.
@@ -125,6 +156,7 @@ The feature summation layers contains two layer of 32 nodes each. In the feature
 	l_2 &= \sum_{j=1}^N w_2j l_{1_j} = \mnot{w_2^T}\mnot{l_1} = \mnot{w_2^T}\mnot{w_1^T}\mnot{x}
 \end{align}
 
+
 The output $\hat{r}$ is a scalar representing the neural activity (calcium activation) at a particular time $t$, as derived from the input spectrogram windows starting at $t - t_{delay}$ and ending at time $t$.
 
 The hyperparameters of this network (number of convolutions l layers, number of fully connected layers, kernel size, number of nodes etc.) were found by the authors by optimizing the prediction accuracy on their own dataset.
@@ -132,8 +164,8 @@ The hyperparameters of this network (number of convolutions l layers, number of 
 The loss function used by \parencite{keshishianEstimatingInterpretingNonlinear2020} is a linear combination of MSE and Pearson's coefficient:
 
 \begin{align}
-	MSE &= \sum_i (\hat{r_i} -r_i)^2 \\
-	PCC &= \frac{\sum _i (r - \overline{r}) (\hat{r} - \overline{r})}{\sqrt{\sum _i (r - \overline{r})^2 \sum _i (\hat{r} - \overline{r})^2}} \\
+	\mathrm{MSE} &= \sum_i (\hat{r_i} -r_i)^2 \\
+	\mathrm{PCC} &= \frac{\sum _i (r - \overline{r}) (\hat{r} - \overline{r})}{\sqrt{\sum _i (r - \overline{r})^2 \sum _i (\hat{r} - \overline{r})^2}} \\
 	\mathcal{L} &= \frac{1}{n} \sum_i (\hat{r_i} -r_i)^2 - \frac{\sum _i (r - \overline{r}) (\hat{r} - \overline{r})}{\sqrt{\sum _i (r - \overline{r})^2 \sum _i (\hat{r} - \overline{r})^2}}
 \end{align}
 
