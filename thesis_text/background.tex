@@ -80,7 +80,11 @@ Give the action potential spike train, the PESE is defined as the stimulus segme
 	\mathrm{PESE} = \{x_n(\tau) = x(t_n - \tau); n = 1, N; \tau \geq 0\}
 \end{equation}
 
-\todo{figure of PESE}
+\begin{figure}[ht]
+	\centering
+	\includegraphics[scale=0.4]{pese}
+	\caption{The CNN architecture contains five convolutional layers. After reshaping the intermediate output, two additional fully connected (FC) layers are used \parencite{aertsenSpectrotemporalReceptiveFields1980a}.}
+\end{figure}
 
 \textcite{aertsenSpectrotemporalReceptiveFields1980} describe the PESE by means of a so-called \emph{AFT-cube}, a three-dimensional plot containing the amplitude, frequency and lag parameters of each PESE sample. Therefore, in this parametric space, each individual PESE segment is represented as a curve along the $\tau$-axis, where both the amplitude $a$ and the frequency $f$ change as the stimulus advances in the time dimension.
 
@@ -97,5 +101,11 @@ Ridge regression tries to minimize the following objective function $J$:
 \emph{Shrinkage} is meant to prevent some weights in $k$ from becoming infinitely large or small in order to minimize the objective functions. Therefore, a penalty is applied through the term $\alpha \norm{\mnot{k^T}}_2^2$, which increases as the weights become increasingly extreme. Since $s$, $r$l, and $\alpha$ have known values, the result of the ridge regression process is an optimal filter $k$ which relates the stimulus and the response.
 
 \subsubsection{Reverse correlation}
-\todo{to write}
+When the stimulus is Gaussian white noise (GWN), \emph{spectrotemporal reverse correlation} can be used to estimate the STRF \parencite{kleinRobustSpectrotemporalReverse2000}. A representation of the dynamic spectrum of the stimulus portion preceding the neuron's action potential is averaged in order to obtain the STRF. The estimate becomes closer as the number of recorded action potentials increases.
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.2]{reverse_corr}
+	\caption{The neuronal activity is shown as the very top of the figure. Immediately below, the synchronous GWN stimulus is illustrated, along with the windows preceding the action potentials. By averaging these windows, an estimate of the STRF can be obtained.\parencite{kleinRobustSpectrotemporalReverse2000}}
+\end{figure}
 
