@@ -1,6 +1,7 @@
 from hdf5storage import loadmat
 import numpy as np
 import os
+from .thesis_logger import logger
 
 
 def load_response(path="data"):
@@ -9,7 +10,7 @@ def load_response(path="data"):
         os.path.join(dp, f)
         for dp, _, fn in os.walk(path)
         for f in fn
-        if "response" in f and f.endswith(".npy")
+        if "response" in f and f.endswith(".npy") and f != "comb_response.npy"
     ]
 
     total_trials = 0
@@ -17,16 +18,19 @@ def load_response(path="data"):
     for file in files:
         sample = np.load(file, mmap_mode="r")
         total_trials += sample.shape[0]
-    shape = np.load(files[0], mmap_mode="r").shape
+        shape = np.load(files[0], mmap_mode="r").shape
 
-    raw_response = np.empty((total_trials, shape[1], shape[2], shape[3]))
+    comb_response = np.lib.format.open_memmap(f"{path}/comb_response.npy", mode="w+", shape=(total_trials, shape[1], shape[2], shape[3]))
 
     index = 0
     for file in files:
+        logger.debug(f"Adding {file}...")
         current_recording = np.load(file, mmap_mode="r")
-        raw_response[index : index + current_recording.shape[0]] = current_recording
+        comb_response[index : index + current_recording.shape[0]] = current_recording
+        logger.debug(f"This file contains {current_recording.shape[0]} trials")
         index += current_recording.shape[0]
-    return raw_response
+    comb_response.flush()
+    return comb_response
 
 
 def load_stimulus(path="data"):
