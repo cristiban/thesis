@@ -1,7 +1,17 @@
 \chapter{Discussion}\label{discussion}
-In this chapter you present all conclusions that can be drawn from the preceding chapters. Next, you discuss these findings and relate them to the scientific literature, including the literature mentioned in the introduction. You also discuss the limitations of your research and implications for further research and potentially society. Often it ends with a conclusion paragraph, under a sub-header.
-\\\\
-The discussion should not introduce any new findings; these should appear in the results section.
+
+The findings demonstrate that DSTRFs are capable of offering interpretable estimates of neuronal response kernels. The ability to generate a chronological "movie" of DSTRFs for each pixel can provide deeper insights into the functional organization of auditory neurons. This interpretability, combined with improved accuracy in fitting nonlinear data, positions DSTRFs as a powerful tool for future investigations into kernel response functions and contributes to a more comprehensive understanding of neural processing in the mouse auditory system. The chosen methodology, involving calcium imaging with the jGCaMP8m indicator and training a Convolutional Neural Network (CNN) with preprocessed data from dynamic random chord (DRC) stimuli, proved effective in achieving these goals.
+
+
+\section{Limitations and future research}
+Despite the promising results, this study faced certain limitations. Due to time constraints, the hyperparameters of the CNN network (e.g., number of convolutional layers, fully connected layers, kernel size, number of nodes etc.) were not optimized using the data analyzed in this project; instead, the original implementation from \textcite{keshishianEstimatingInterpretingNonlinear2020} was used. Future work should involve a thorough hyperparameter optimization process, which could potentially lead to even more accurate and robust models for the specific dataset used.
+
+Additionally, the original DSTRF paper \parencite{keshishianEstimatingInterpretingNonlinear2020} utilized a model of early auditory processing \parencite{yangAuditoryRepresentationsAcoustic1992} to estimate the input to cortical auditory neurons more accurately. Due to time constraints, no such model was integrated into this analysis. Incorporating such an early processing model in future studies would further maximize the potential of the neural network by providing a more refined input representation, thus potentially improving the estimation of cortical response kernels.
+
+Future research could also explore the application of DSTRFs to other sensory modalities or different types of neuronal data to assess their generalizability. Further investigation into the specific spatial and temporal features revealed by the DSTRF "movies" could provide more granular insights into the functional segregation and integration within the auditory cortex.
+
+\section{Conclusion}
+In conclusion, this thesis successfully demonstrated the use of DSTRFs as a method for estimating and visualizing neuronal response kernels in the mouse auditory cortex. By effectively modeling nonlinear neural dynamics, DSTRFs offer a more accurate and interpretable framework for understanding how the brain processes complex auditory stimuli. This work not only contributes to the fundamental understanding of sensory coding but also provides a robust analytical tool for future neuroscientific research. Continued efforts to optimize model parameters and incorporate more sophisticated input representations will further enhance the power and scope of this approach.
 
 
 

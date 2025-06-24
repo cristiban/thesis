@@ -1,15 +1,15 @@
 \chapter{Methods}\label{methods}
 
 \section{Introduction}
-Since its introduction \parencite{aertsenSpectrotemporalReceptiveFields1980a}, the spectro-temporal receptive field (STRF) has been a widely used method for studying auditory neurons. Nevertheless, it has been shown STRF does not manage to capture nonlinearlities in neuronal activity. Therefore, my thesis will attempt to apply a convolutional neural network architecture on calcium imaging data, which will then be linearized to an interpretable DSTRF, as described by \textcite{keshishianEstimatingInterpretingNonlinear2020}. 
+Since its introduction \parencite{aertsenSpectrotemporalReceptiveFields1980a}, the spectro-temporal receptive field (STRF) has been a widely used method for studying auditory neurons. Nevertheless, it has been shown STRF does not manage to capture nonlinearlities in neuronal activity. Therefore, the goal of this project is to apply a convolutional neural network architecture on calcium imaging data, which will then be linearized to an interpretable DSTRF, as described by \textcite{keshishianEstimatingInterpretingNonlinear2020}. 
 The data used in this project consists of calcium imaging data, where a genetically encoded calcium indicator (GECI) has been expressed in auditory cortex neurons of mice. This indicator has fluorescent properties, and thus intraneuronal calcium dynamics can be recorded using widefield imaging.
 
 \section{Experimental setup, data description and preprocessing}
-As for the experimental setup, the neural representation of random tone sequences in mice \qst{(CBA/JRj, female, age: 2-3 months, n=10)} was investigated. The mice were locally transfected the calcium indicator jGCaMP8m (described below) and the whole auditory cortex was chronically imaged (1p widefield, 100 Hz). Imaging was performed through a cranial window (ø=3.0-4.2 mm) centered above the AC starting after 2-3 weeks of viral expression.
+As for the experimental setup, the neural representation of random tone sequences in mice \qst{(CBA/JRj, female, age: 2-3 months, n=3)} was investigated. The mice were locally transfected the calcium indicator jGCaMP8m (described below) and the whole auditory cortex was chronically imaged (1p widefield, 100 Hz). Imaging was performed through a cranial window ($\phi$=3.0-4.2 mm) centered above the auditory cortex, starting after 2-3 weeks of viral expression. In total, 90 trials were recorded from the three animals.
 
-Each trial lasts for 4.2 seconds, at a recording frequency of 100 Hz. Therefore, 420 frames of video were colected, at a resolution of 304 $\times$ 340 pixels.
+Each trial lasts for 4.2 seconds, at a recording frequency of 100 Hz. Therefore, 420 frames of video were collected, at a resolution of 304 $\times$ 340 pixels.
 
-The raw data collected from the animals was preprocessed using the Controller software developed within the lab. The standard preprocessing methods have been used: motion correction, deconvolution and denoising of the calcium imaging. The resulting frames of resolution 152x170 were further used as input to the convolutional neural network.
+The raw data collected from the animals was preprocessed using the Controller software developed within the lab. The raw images have been DeltaF/F normalized. The resulting frames of resolution 152 $\times$ 170 were further used as input to the convolutional neural network.
 
 \subsection{Calcium imaging}
 The calcium indicator that was used is jGCaMP8m. The jGCaMP8m indicator is part of the GCaMP family, and show improved kinetics compared to previous versions, without compormising sensitivity or brightness \parencite{zhangFastSensitiveGCaMP2023}. Additonally, this indicator can track neurons with spike rates up to 50 Hz, and are also more linear in their fluorescence, allowing for more robust deconvolution during spike extraction \parencite{zhangFastSensitiveGCaMP2023}.
@@ -21,20 +21,21 @@ The jGCaMP8m calcium indicator works similarly to other indicators in the GCaMP 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.3]{gcamp}
-	\caption{The fluoresecent protein EGFP is flanked on one side by callcium-binding calmodulin and on the other by the peptide M13, which binds to calmodulin. The binding of calcium ions to the structure causes an increase in green fluorescence. \parencite{grienbergerImagingCalciumNeurons2012}}
+	\caption{The fluoresecent protein EGFP is flanked on one side by callcium-binding calmodulin and on the other by the peptide M13, which binds to calmodulin. The binding of calcium ions to the structure causes an increase in green fluorescence. Reproduced from \textcite{grienbergerImagingCalciumNeurons2012}.}
 \end{figure}
 
 
 
 \section{Stimulus}
-\qst{The dynamic random chord (DRC) stimulus has been used during imaging, in order to elicit a response in the auditory cortex. The stimulus consists of a sequence of chords of random frequency. A chord contains one or more identically loud tones of various frequencies, played simultaneously. Two chord are played per trial, each with a duration of 0,05 s = 50 ms and a silent interval of 50 ms between successive chords. The trial ends 2,05 seconds after the end of the last chord, and the next trial commences immediately with 2 seconds start delay before the first chord of that trial is played.}
+\qst{The dynamic random chord (DRC) stimulus has been used during imaging, in order to elicit a response in the auditory cortex. The stimulus consists of a sequence of chords of random frequency. A chord contains one or more identically loud tones of various frequencies, played simultaneously. Two chord are played per trial, each with a duration of 0.05 s = 50 ms and a silent interval of 50 ms between successive chords. The trial ends 2.05 seconds after the end of the last chord, and the next trial commences immediately with 2 seconds start delay before the first chord of that trial is played.}
 
-The stimulus is converted into a spectrogram using the fast Fourier transform. Initially, the frequencies are binned into intervals and displayed along the y-axis, while the 220 time samples (counted from stimulus onset) are displayed along the x-axis. The spectrogram below is a concrete example, showcasing the stimulus spectrogram from mouse 219, recording 25, trial 1:
+The stimulus is converted into a spectrogram using the fast Fourier transform. Initially, the frequencies are binned into intervals and displayed along the y-axis, while the 220 time samples (counted from stimulus onset) are displayed along the x-axis. The spectrogram in Figure \ref{fig:spec} is a concrete example, showcasing the stimulus spectrogram summed over all 90 trials.
 
 \begin{figure}[ht]
 \centering
-	\includegraphics[scale=0.5]{example_spec_mouse219r25}
-\caption{The spectrogram above shows an example of the DRC stimulus used for our experiments. The time in seconds is shown on the x-axis and the frequency bin on the y-axis, respectively. The two chords played in this trial can be clearly seen on the left of the figure.}
+	\includegraphics[scale=0.5]{sum_spec}
+\caption{The spectrogram above shows an example of the DRC stimulus used for our experiments. The time in seconds is shown on the x-axis and the frequency bin on the y-axis, respectively. The timing of the two chords played during each trial can be clearly seen as two red horizontal lines.}
+\label{fig:spec}
 \end{figure}
 
 Moreover, the analysis is conducted using the DSTRF python implementation provided by the authors of the original paper (\href{https://github.com/naplab/DSTRF}{https://github.com/naplab/DSTRF}). The described CNN network is trained to predict the activity of each pixel, when given the audio spectrogram of the auditory stimulus as input. Then, as detailed in the original paper, as well as below, this network is linearized in order to extract the interpretable DSTRF.
@@ -45,11 +46,11 @@ A convolutional neural network is a type of neural network inspired by visual pe
 	
 The architecture described by \textcite{keshishianEstimatingInterpretingNonlinear2020} is used. This architecture consists of two types of layers: convolutional and fully connected layers. Convolutional layers apply a cross-correlation operation on the layer input by means of a kernel. The equation describing this operation is as follows adapted from \textcite{zhangDiveDeepLearning2024}\:
 
-\begin{equation}
+\begin{equation*}
 	H_{i, j, d} = \sum_{a=-\Delta}^\Delta \sum_{b=-\Delta}^\Delta \sum_c V_{a, b, c ,d} X_{i+a, j+b, c}
-\end{equation}
+\end{equation*}
 
-A convolutional layer consists of the input $X$ (height x width x channels), an output $H$ (height x width x number of feature maps) and a  set of $c$ kernels (weights) for each feature map. The obtained feature maps represent different aspects of the input data, corresponding to the weights used \parencite{liSurveyConvolutionalNeural2022}.
+A convolutional layer consists of the input $X$ (height $\times$ width $\times$ channels), an output $H$ (height $\times$ width $\times$ number of feature maps) and a  set of $c$ kernels (weights) for each feature map. The obtained feature maps represent different aspects of the input data, corresponding to the weights used \parencite{liSurveyConvolutionalNeural2022}.
 
 %On the other hand, fully connected layers are used in the final layers of a CNN network in order to achieve a global perspective on the input image and introduce non-local dependencies.
 
@@ -58,16 +59,16 @@ In order to reach arrive at an interpretable solution, linearization of the resu
 \begin{proof}[Explanation]
 Assume a valid path $p$ generated by selecting one node $n_{li}$ per layer $l$, where $i \in \{1, s_l\}$ and $s_l$ is the number of neurons in each layer. $s_l$ might differ for each layer, depending on the architecture. The number of total paths corresponding to one input is:
 
-\begin{equation}
+\begin{equation*}
 	t_{in} = \prod_{l=1}^n s_l
-\end{equation} 
+\end{equation*} 
 
 The weight obtained from one path can be expressed as such:
 
-\begin{equation}
+\begin{equation*}
 	w_{in, p} = \prod_{l=1}^{n} w_{l}
-\end{equation}
-, where $p$ indexes all possible paths from input node $in$, therefore $p \in \{1, t_{in}\}$
+\end{equation*}
+\noindent where $p$ indexes all possible paths from input node $in$, therefore $p \in \{1, t_{in}\}$
 
 Moreover, for each path starting from the same input node, it is possible to further multiply the obtained weights in order to get a single weight corresponding to each input node.
 
@@ -80,10 +81,10 @@ Moreover, for each path starting from the same input node, it is possible to fur
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.3]{linearization}
-	\caption{After training the network, the nodes that had been turned off by ReLU are removed, and the neurons between the input and the output are multiplied in order to get a direct weight for each input. The weights are then reshaped in a more understandable lag $\times$ frequency format, which is the DSTRF \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
+	\caption{After training the network, the nodes that had been turned off by ReLU are removed, and the neurons between the input and the output are multiplied in order to get a direct weight for each input. The weights are then reshaped in a more understandable lag $\times$ frequency format, which is the DSTRF. Reproduced from  \textcite{keshishianEstimatingInterpretingNonlinear2020}.}
 \end{figure}
 
-The resulting weight matrix $\mnot{w}$ contains one weight for each input (i.e spectrogram bin), which can be visualized as the DSTRF for that particular window of the stimulus.
+The resulting weight matrix $\mnot{w}$ contains one weight for each input (i.e spectrogram pixel). The weight matrix can be visualized as the DSTRF for that particular window of the stimulus.
 
 \section{Mouse auditory system}
 The brain region targeted by the calcium imaging is the auditory cortex. The murine auditory cortex represents the site of termination of medial geniculate body (MG) ascending fibers \parencite{malmiercaAuditorySystem2012}. The auditory cortex is classified into five auditory fields based on characteristics of their auditory response. Two out of five regions are tonotopically organized: the primary auditory field (AI) and the anterior auditory field (AAF) \parencite{malmiercaAuditorySystem2012}.
@@ -92,17 +93,15 @@ The mouse auditory system has some general features in common with that of human
 
 The sound waves propagate through and mechanically through the outer and middle ear \parencite{malmiercaAuditorySystem2012}. In the inner ear, they are transduced into electrical signals by hair cells, which travel through the cochlear nerve until they reach the brainstem, where they undergo obligatory synaptic interruption in the cochlear nucleus. Individual fibers ramify and ascend through a number of parallel tracts, converging into the auditory midbrain and inferior colliculus (IC). These converged fibers synapse in the medial geniculate body (MG), which finally relays the signals to the auditory cortex \parencite{malmiercaAuditorySystem2012}.
 
-Therefore, in order to estimate the input to the cortical auditory neurons as well as possible, a model of early processing encompassing all previous brain structures will be used in an attempt to maximize the potential of the neural network. A model by \textcite{yangAuditoryRepresentationsAcoustic1992} plays this role in the original paper. Due to time constraints, an already available model was used, as opposed to designing one from scratch.
-
-\todo{simple figure of auditory system}
+Therefore, in order to estimate the input to the cortical auditory neurons as well as possible, a model of early processing encompassing all previous brain structures will be used in an attempt to maximize the potential of the neural network. A model by \textcite{yangAuditoryRepresentationsAcoustic1992} plays this role in the original paper. Due to time constraints, no such model was used in this analysis.
 
 \section{Dynamic STRF}
-Referencing the models presented in the Background section, the DSTRF is an estimation method of the filter $\mnot{k}$. The novelty of DSTRF comes from the fact that it attempts to compute a different filter $\mnot{k_{sample}}$ for each subsequent sample of neural activity. In the case of this paper, given the $n = 220$ frames collected after the onset of the stimulus, 220 different filters ($\mnot{k_1}, \mnot{k_2}, \mnot{k_3}, \dots, \mnot{k_n}$) will be computed and concatenated into a movie across the temporal dimension. 
+Referencing the models presented in the Background section, the DSTRF is an estimation method for the filter $\mnot{k}$. The novelty of DSTRF comes from the fact that it attempts to compute a different filter $\mnot{k}_{sample}$ for each subsequent sample of neural activity. In the case of this paper, given the limitation that the selected stimulus windows have to be fully contained within the stimulus, $n=15$ frames were used from both the stimulus spectrogram and the response (delayed according to lag), 15 different filters ($\mnot{k}_1, \mnot{k}_2, \mnot{k}_3, \dots, \mnot{k}_n$) will be computed and concatenated into a movie across the temporal dimension. 
 
 A network consisting of nodes implementing the ReLU activation function is a universal approximator of any continuous function $f: [0, 1] \rightarrow \mathbb{R}$, which holds for all multilayer feedforward neural networks in general \parencite{hornikMultilayerFeedforwardNetworks1989, huangReLUNetworksAre2020}. 
 
 \begin{proof}[Explanation]
-Consider an MLP (fully connected) neural network with one layer of nodes $h_1, h_2, h_3, \ldots, h_n$ which implement the ReLU activation function. The input is represented by the vector $\mnot{x}$ and the output is a value $y$. For each node $h_i$:
+Consider a fully connected neural network with one layer of nodes $h_1, h_2, h_3, \ldots, h_n$ which implement the ReLU activation function. The input is represented by the vector $\mnot{x}$ and the output is a value $y$. For each node $h_i$:
 
 \begin{align*}
 	h_i = \mathrm{ReLU}(\mnot{w_{h_i}^T}\mnot{x}) \\
@@ -122,44 +121,44 @@ Since the weights are constant, we can write any input value $x_i$ relative to $
 	&= (m_{11} + m_{21} + \ldots + m_{n1})h_{1_{raw}} = s_yh_{1_{raw}}
 \end{align*}
 
-where $s_y$ is the \emph{slope} of the linear function that maps the first hidden node $h_1$ to the raw value of the output $y$.
+\noindent where $s_y$ is the \emph{slope} of the linear function that maps the first hidden node $h_1$ to the raw value of the output $y$.
 
-Based on the input values $\mnot{x}$, a subset of nodes $H_{off} \in H$ might be "turned off" by the ReLU function due to being negative. In turn, this would modify the slope $s_y' = \sum_{m_{i1} \not\in M_{off}} m_{i1}$, removing the positive or negative contributions of some hidden nodes. Plotted in parameter space, this dependence of the slope on the input values results in a linear piecewise function, as illustrated in Figure \ref{fig:piecewise}.
+Based on the input values $\mnot{x}$, a subset of nodes $H_{off} \subset H$ might be "turned off" by the ReLU function due to being negative. In turn, this would modify the slope $s_y' = \sum_{m_{i1} \not\in M_{off}} m_{i1}$, removing the positive or negative contributions of a number of hidden nodes. Plotted in parameter space, this dependence of the slope on the input values results in a linear piecewise function, as illustrated in Figure \ref{fig:piecewise}.
 \end{proof}
 
 
 
-The architecture used to analyse the data is both multilayer, since it contains multiple layer that are connected such that one layer's output is the next layer's input, and also feedforward, since each connection only connects one layer to the next, without any feedback or recursive connection to itself or the previous layers. Moreover, the ReLU activation functions allows the network to approximate any function through piecewise line segments \parencite{keshishianEstimatingInterpretingNonlinear2020}. Using the linearlization process discussed above, we can obtain a weight vector of the same size as the network input, which can considered a filter $\mnot{k}$. Therefore, the stimulus (input of the network) can be multiplied with this filter to get the response estimation $\hat{r} = \mnot{k^T}\mnot{s}(t)$, acting in a similar fashion to STRF.
+The architecture used to analyse the data is both multilayer, since it contains multiple layer that are connected such that one layer's output is the next layer's input, and also feedforward, since each connection only connects one layer to the next, without any feedback or recursive connection to itself or the previous layers. Moreover, the ReLU activation functions allows the network to approximate any function through piecewise line segments \parencite{keshishianEstimatingInterpretingNonlinear2020}. Using the linearization process discussed above, we can obtain a weight vector of the same size as the network input, which can considered a filter $\mnot{k}$. Therefore, the stimulus (input of the network) can be multiplied with this filter to get the response estimation $\hat{r} = \mnot{k^T}\mnot{s}(t)$, acting in a similar fashion to STRF.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.4]{relu}
-	\caption{Using the ReLU activation function results in a piecewise linear apporximation, as opposed to the identity function, which produces a linear fit. This is because the ReLU turns off some neurons, resulting in the varying slope of the approximation function. This allows for a better approximation of a nonlinear function \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
+	\caption{Using the ReLU activation function results in a piecewise linear approximation, as opposed to the identity function, which produces a linear fit. This is because the ReLU turns off some neurons, resulting in the varying slope of the approximation function. This allows for a better approximation of a nonlinear function. Reproduced from \textcite{keshishianEstimatingInterpretingNonlinear2020}.}
 	\label{fig:piecewise}
 \end{figure}
 
 \subsection{CNN network}
-The architecture we used is the original implementation in \parencite{keshishianEstimatingInterpretingNonlinear2020}. This architecture closely follows the CNN architectural principles, consisting of a feature extraction network and a feature summation layer. The networks takes the $T \times F$ bins of the stimulus spectrogram as as input, and outputs the estimated response $\hat{r_i}$ for all $H \times W$ pixels of the image. During the training process, this response is compared to the real recorded response $r_i$. Then, the loss function is computed and the weights of the network are optimized by backpropagation.
+The architecture used is the original implementation in \textcite{keshishianEstimatingInterpretingNonlinear2020}. This architecture closely follows the CNN architectural principles, consisting of a feature extraction network and a feature summation layer. The networks takes the $T \times F$ bins of the stimulus spectrogram as as input, and outputs the estimated response $\hat{r_i}$ for all $H \times W$ pixels of the image. During the training process, this response is compared to the real recorded response $r_i$. Then, the loss function is computed and the weights of the network are optimized by backpropagation.
 
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.4]{CNN_arch}
-	\caption{The CNN architecture contains five convolutional layers. After reshaping the intermediate output, two additional fully connected (FC) layers are used \parencite{keshishianEstimatingInterpretingNonlinear2020}.}
+	\caption{The CNN architecture contains five convolutional layers. After reshaping the intermediate output, two additional fully connected (FC) layers are used. Reproduced from \textcite{keshishianEstimatingInterpretingNonlinear2020}.}
 \end{figure}
 
 The feature extraction component of the network is comprised of three consecutive convolutional layers with eight kernel size of $3 \times 3$ each, one layer with four $1 \times 1 1$ kernels, and one layer with one $1 \times 1$ kernel. The first layer produces 8 feature maps of size $168 \times 150$, which are then stacked and provided as input to the next layer. The output of the first three layers is of shape $164 \times 146 \times 8$, which is drastically dimensionally reduced through the following layer to $164 \times 146 \times 4$, since only four kernels are used. Then, the latent representation is reduced further to $164 \times 146 \times 1$.
 
-The feature summation layers contains two layer of 32 nodes each. In the feature summation layer, the input is first flattened into a vector in order to be properly sized as input to the fully connected layers. Therefore, the $164 \times 146$ feature maps becomes an $N = 164 * 146 = 23944$-size vector. This vector $v$ is processed through 2 fully connected layers, $l_1$ and $l_2$, such that:
+The feature summation component contains two layer of 32 nodes each. In the feature summation layer, the input is first flattened into a vector in order to be properly sized as input to the fully connected layers. Therefore, the $164 \times 146$ feature maps becomes an $N = 164 \times 146 = 23944$-size vector. This vector $v$ is processed through 2 fully connected layers, $l_1$ and $l_2$, such that:
 
-\begin{align}
-	l_1 &= \sum_{i=1}^N w_1i x_i = \mnot{w_1^T}\mnot{x} \\
-	l_2 &= \sum_{j=1}^N w_2j l_{1_j} = \mnot{w_2^T}\mnot{l_1} = \mnot{w_2^T}\mnot{w_1^T}\mnot{x}
-\end{align}
+\begin{align*}
+	l_1 &= \sum_{i=1}^N w_{1i} x_i = \mnot{w_1^T}\mnot{x} \\
+	l_2 &= \sum_{j=1}^N w_{2j} l_{1_j} = \mnot{w_2^T}\mnot{l_1} = \mnot{w_2^T}\mnot{w_1^T}\mnot{x}
+\end{align*}
 
 
 The output $\hat{r}$ is a scalar representing the neural activity (calcium activation) at a particular time $t$, as derived from the input spectrogram windows starting at $t - t_{delay}$ and ending at time $t$.
 
-The hyperparameters of this network (number of convolutions l layers, number of fully connected layers, kernel size, number of nodes etc.) were found by the authors by optimizing the prediction accuracy on their own dataset.
+The hyperparameters of this network (number of convolutional layers, number of fully connected layers, kernel size, number of nodes etc.) were found by the authors by optimizing the prediction accuracy on their own dataset. Due to time constraints, no optimization was done using the data analyzed in this project.
 
 The loss function used by \parencite{keshishianEstimatingInterpretingNonlinear2020} is a linear combination of MSE and Pearson's coefficient:
 
@@ -176,26 +175,15 @@ Given the all zeros weight tensor $W$ with dimensions $M \times N \times C \time
 \begin{equation}
 	W\left[m - \left\lfloor\frac{H}{2}\right\rfloor:m+ \left\lfloor\frac{H}{2}\right\rfloor, n- \left\lfloor\frac{W}{2}\right\rfloor:n+ \left\lfloor\frac{W}{2}\right\rfloor, 1:C; m, n, l\right] = K_l
 \end{equation} 
-\noindent , where $:$ represents the slicing operator, $a:b \leftrightarrow \forall i \in \{a, b\}, i \in \mathbb{Z}, a, b \in \mathbb{Z}$
+\noindent where $:$ represents the slicing operator, $a:b \leftrightarrow \forall i \in \{a, b\}, i \in \mathbb{Z}, a, b \in \mathbb{Z}$
 
-To explain verbally, taking a $3 \times 3 \times 8$ kernel $k$ as an example, the formula explicitly copies the kernel weights across each $3 \times 3 \times 8$ area of the input where it was applied, in order to assign a weight to each input node and remove the need of convolution or "sliding" of the kernel across the input.
+Therefore, taking a $3 \times 3 \times 8$ kernel $k$ as an example, the formula explicitly copies the kernel weights across each $3 \times 3 \times 8$ area of the input where it was applied, in order to assign a weight to each input node and remove the need of convolution or "sliding" of the kernel across the input.
 
 Assuming the use of the ReLU activation function and the absence of bias, the linearization procedure described above can be used.
 
-\subsection{Hyperparameter optimization}
-\todo{to write}
 
-\subsection{Jackknifing and cross-validation}
-During the training process, \emph{cross-validation} was used. Cross-validation is an established method in the statistical and machine learning community, and it used to estimate prediction error \parencite{batesCrossValidationWhatDoes2024}. Cross-validation consists of splitting $n$ samples  into a training subsample (size $n-1$) and a validation subsample (size $1$) in all $n$ possible ways \parencite{stoneCrossValidatoryChoiceAssessment1974}.  While using a single split amounts to validation, averaging results over multiple splits represents cross-validation \parencite{arlotSurveyCrossvalidationProcedures2010}. The exhaustive leave-one-out cross validation is defined as:
-
-\begin{equation}
-	\hat{\mathcal{L}}^{\mathrm{LOO}}(A; D_n) = \frac{1}{n} \sum_{j=1}^n \gamma \left( A \left( D^{(-j)}_n \right); \xi_j \right)
-\end{equation}
-\todo{explanation of formula}
-
-In the original paper by \textcite{keshishianEstimatingInterpretingNonlinear2020}, \emph{jackknifing} was used in order to ensure that the obtained DSTRF coefficients are statistically significant. To that end, 20 CNNs were trained, leaving out disjoint 1/20 portions of the data for each network. Therefore, a distribution of samples was obtained for each coefficient. If 19 of 20 samples agree on the sign of a certain coefficient, then the value is considered significant ($p=0.05$) and the mean of the samples is taken as the final coefficient. In case of insignificance, the coefficient is set to 0 \parencite{keshishianEstimatingInterpretingNonlinear2020}.
-
-\section{Code implementation}
+\subsection{Training, validation and testing}
+As specified above, the architecture was not modified in any way. The number of input and output channels was adapted to the calcium imaging data, in order to train and linearize one network for each pixel. A  GeForce RTX ™ 3090 GPU was used for training the network. Despite being available, cross-validation and jackknifing were not applied. The dataset was split into train and test data according to a 80/20 ratio. The network was not exposed to the test data.
 
 \section{Conclusion}
 In conclusion, calcium imaging is used to record and collect data from the mouse auditory cortex. The fluorescence of the GCaMP indicator correlates with neuronal activity. The obtained recordings are then used as labels to train a convolutional neural network to predict neuronal activity from the perceived auditory stimulus. The trained network is then linearized in order to obtain the direct weights corresponding to each input node (image pixel). These weights represent the DSTRF of that particular pixel at a specific time point. By concatenating the DSTRFs obtained for different time points, a chronological video can be obtained for each pixel.

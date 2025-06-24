@@ -20,7 +20,7 @@ def load_response(path="data"):
         total_trials += sample.shape[0]
         shape = np.load(files[0], mmap_mode="r").shape
 
-    comb_response = np.lib.format.open_memmap(f"{path}/comb_response.npy", mode="w+", shape=(total_trials, shape[1], shape[2], shape[3]))
+    comb_response = np.lib.format.open_memmap(f"{path}/comb_response.npy", mode="w+", shape=(total_trials, shape[1], shape[2], shape[3]), dtype=np.float32)
 
     index = 0
     for file in files:
@@ -40,7 +40,7 @@ def load_stimulus(path="data"):
         for x in filenames:
             if "stimulus" in x:
                 current_stimulus = loadmat(os.path.join(dirpath, x))["values"]
-                # print(current_stimulus[0].shape)
+                
                 raw_stimulus.extend(current_stimulus[0])
 
     # print(raw_stimulus[49][0])

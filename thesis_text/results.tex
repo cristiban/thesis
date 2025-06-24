@@ -5,25 +5,27 @@ The STRF is computed in order to roughly check the activation across the auditor
 \begin{figure}[ht]
 	\centering
 	\includegraphics[scale=0.4]{m219_r25_t1/avg_strf}
-	\caption{Own result}
+	\caption{The figure shows the average activation over time of each pixel in the recording. Two regions can be identified as having the strongest activity.}
 	\label{fig:strf_m219_r25}
 \end{figure}
 
 \begin{figure}
 \centering
 \animategraphics[width=0.7\linewidth,controls]{30}{m219_r25_t1/video/image}{1}{31}
-\caption{This figure is generated using the same data as Figure \ref{fig:strf_m219_r25} but instead the STRF of each neuron is only summed accross the spatial dimension, resulting in a video where the average STRF value is shown for each moment $t$}
+\caption{This figure is generated using the same data as Figure \ref{fig:strf_m219_r25} but instead the STRF of each neuron is only summed accross the spatial dimension, resulting in a video where the average STRF value is shown for each moment $t$. This recording is also available in the github repository.}
 \end{figure}
 
-
-After applying the DSTRF algorithm described above: training the CNN network, linearizing it and multiplying the weights, an interpretable movie visualization for every pixel $p$ of the calcium imaging recording was obtained. Shown below is a selection of such movies, compressed in order to save space in the document (raw, uncompressed videos are also provided, along with the full code).
-
-\todo{3-4 DSTRF videos with labeled trial, recording, pixel}
-
 \begin{figure}
-	\centering
-	\includegraphics[scale=0.8]{50_trials}
-	\caption{The figure shows the average Pearson correlation scores per pixel between the actual response to the stimulus and the response predicted by the DSTRF. It is clear that the correlation overlap with the "seed" areas of activation, as seen in the recording.}
+	\begin{subfigure}{0.45\textwidth}
+	\includegraphics[width=\textwidth]{50_trials}
+	\caption{This panel shows the correlation between the actual and predicted response. This network was trained on 40 trials, and 10 trials were used for testing. The scores (i.e correlations) were then averaged for each pixel and plotted here.}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.45\textwidth}
+	\includegraphics[width=\textwidth]{90_trials}
+	\caption{The same procedure as in the left panel was applied here. In this case, 72 trials were used for training and 18 for testing. There are significantly more correlations visible in the figure, probably due to the increased amount of input data.}
+\end{subfigure}
+	\caption{The figure shows the average Pearson correlation scores per pixel between the actual response to the stimulus and the response predicted by the DSTRF. A comparison is made between models trained on varying amounts of data.}
 	\label{fig:50trials}
 \end{figure}
 
