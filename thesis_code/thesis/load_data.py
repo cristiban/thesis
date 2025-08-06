@@ -1,6 +1,7 @@
 from hdf5storage import loadmat
 import numpy as np
 import os
+import re
 from .thesis_logger import logger
 
 
@@ -12,25 +13,35 @@ def load_response(path="data"):
         for f in fn
         if "response" in f and f.endswith(".npy") and f != "comb_response.npy"
     ]
-
     total_trials = 0
+    animal_files = {}
     # get shape
     for file in files:
         sample = np.load(file, mmap_mode="r")
         total_trials += sample.shape[0]
-        shape = np.load(files[0], mmap_mode="r").shape
+        match = re.search(r'(mouse\d+)', file)
+            
+        if match:
+            animal_name = match.group(1)
+            if animal_name not in animal_files:
+                animal_files[animal_name] = []
+            animal_files[animal_name].append(file)
+
+    shape = np.load(files[0], mmap_mode="r").shape
 
     comb_response = np.lib.format.open_memmap(f"{path}/comb_response.npy", mode="w+", shape=(total_trials, shape[1], shape[2], shape[3]), dtype=np.float32)
-
+    animal_indices = {}
     index = 0
-    for file in files:
-        logger.debug(f"Adding {file}...")
-        current_recording = np.load(file, mmap_mode="r")
-        comb_response[index : index + current_recording.shape[0]] = current_recording
-        logger.debug(f"This file contains {current_recording.shape[0]} trials")
-        index += current_recording.shape[0]
+    for animal_name, files in animal_files.items():
+        for file in files:
+            logger.debug(f"Adding {file}...")
+            current_recording = np.load(file, mmap_mode="r")
+            comb_response[index : index + current_recording.shape[0]] = current_recording
+            logger.debug(f"This file contains {current_recording.shape[0]} trials")
+            index += current_recording.shape[0]
+        animal_indices[animal_name] = index
     comb_response.flush()
-    return comb_response
+    return comb_response, animal_indices
 
 
 def load_stimulus(path="data"):
