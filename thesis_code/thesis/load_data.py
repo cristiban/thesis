@@ -30,18 +30,20 @@ def load_response(path="data"):
     shape = np.load(files[0], mmap_mode="r").shape
 
     comb_response = np.lib.format.open_memmap(f"{path}/comb_response.npy", mode="w+", shape=(total_trials, shape[1], shape[2], shape[3]), dtype=np.float32)
-    animal_indices = {}
+    animal_slices = {}
     index = 0
     for animal_name, files in animal_files.items():
+        start_index = index
         for file in files:
             logger.debug(f"Adding {file}...")
             current_recording = np.load(file, mmap_mode="r")
             comb_response[index : index + current_recording.shape[0]] = current_recording
             logger.debug(f"This file contains {current_recording.shape[0]} trials")
             index += current_recording.shape[0]
-        animal_indices[animal_name] = index
+        stop_index = index
+        animal_slices[animal_name] = slice(start_index, stop_index)
     comb_response.flush()
-    return comb_response, animal_indices
+    return comb_response, animal_slices
 
 
 def load_stimulus(path="data"):
