@@ -186,7 +186,7 @@ Assuming the use of the ReLU activation function and the absence of bias, the li
 As specified above, the architecture was not modified in any way. The number of input and output channels was adapted to the calcium imaging data, in order to train and linearize one network for each pixel. A  GeForce RTX ™ 3090 GPU was used for training the network. The Pytorch Lightning \verb|trainer()| class was used to define the training hyperparameters for the network. The accelerator used was \verb|cuda|, the precision was \verb|bf16-mixed| in order to optimize training speed and memory consumption. This precision setting allows the parameters of the network to be stored as \verb|float32| when high precision is needed, and the precision to be reduced when high precision is not necessary. Based on manual observation, the training was interrupted after 150 epochs, since no training loss decrease was detected.
 
 Moreover, a pytorch lightning \verb|builder()| was used to set the architecture parameters. Using the \verb|DeepEnoder()| class provided by the \verb|dstrf| library, the input and output sizes were set to the corresponding dimensions, and the hidden layer size of 128 was used, identical to the original architecture by \cite{keshishianEstimatingInterpretingNonlinear2020}. Given the small training dataset, both crossvalidation and jackknifing were used. The dataset was split into two according to the corresponding animal.
-
+rly
 The details described above can be seen in the source code available on GitHub.
 
 \section{Conclusion}
